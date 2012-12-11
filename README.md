@@ -19,9 +19,7 @@ If you to change the default items per page, just adjust the _perPage option:
 ```javascript
 // Somewhere inside of your app
 ApplicationController: Ember.Controller.extend({
-  equipment: Ember.ArrayController.create(VG.Mixins.Pageable, {
-    perPage: 20
-  })
+  equipment: Ember.ArrayController.create(VG.Mixins.Pageable, {perPage: 20})
 });
 ```
 
