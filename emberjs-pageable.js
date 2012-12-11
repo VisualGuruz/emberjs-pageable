@@ -107,7 +107,8 @@ VG.Views = {};
  */
 VG.Views.Pagination = Ember.View.extend({
 	template: Ember.Handlebars.compile(
-		'<div class="pagination">\
+		'{{#if view.pages}}\
+		<div class="pagination">\
 				<ul>\
 					<li {{bindAttr class="view.disablePrev:disabled"}}><a {{action prevPage}}>Prev</a></li>\
 					{{#each view.pages itemViewClass="view.pageButton" page="content"}}\
@@ -115,22 +116,49 @@ VG.Views.Pagination = Ember.View.extend({
 					{{/each}}\
 					<li {{bindAttr class="view.disableNext:disabled"}}><a {{action nextPage}}>Next</a></li>\
 				</ul>\
-			</div>'
+			</div>\
+		{{/if}}'
 	),
 
 	/**
-	 * Computed property that generates the page link numbers to be used in the view
+	 * Computed property that generates the page link numbers to be used in the
+	 * view. Limit to 10 pages at a time with the current page being in the center
+	 * if there are pages past the start or end. Credit to Google.com for the
+	 * inspiration.  Here's an example of how it should look:
+	 *
+	 *              Prev 8 9 10 11 12 |13| 14 15 16 17 Next
+	 *
 	 * @return {Array}
 	 */
 	pages: function () {
-		var result = [];
+		var result = [],
+			totalPages = this.get('controller.totalPages'),
+			currentPage = this.get('controller.currentPage'),
+			length = (totalPages >= 10) ? 10 : totalPages,
+			startPos;
+
+		/*
+		 * Figure out the starting point.
+		 *
+		 * If current page is <= 6, then start from 1, else FFIO
+		 */
+		if (currentPage  <= 6 || totalPages <= 10) {
+			startPos = 1;
+		} else {
+			// If in the last section of pages, use the last 10 pages
+			if (currentPage > (totalPages - 5)) {
+				startPos = totalPages - 9;
+			} else {
+				startPos = currentPage - 5;
+			}
+		}
 
 		// Go through all of the pages and make an entry into the array
-		for (var i = 0; i < this.get('controller.totalPages'); i++)
-			result.push(i + 1);
+		for (var i = 0; i < length; i++)
+			result.push(i + startPos);
 
 		return result;
-	}.property('controller.totalPages'),
+	}.property('controller.totalPages', 'controller.currentPage'),
 
 	/**
 	 * Computed property to determine if the previous page link should be disabled or not.
