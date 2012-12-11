@@ -108,7 +108,7 @@ VG.Views = {};
 VG.Views.Pagination = Ember.View.extend({
 	template: Ember.Handlebars.compile(
 		'{{#if view.pages}}\
-		<div class="pagination">\
+		<div class="pagination pull-right">\
 				<ul>\
 					<li {{bindAttr class="view.disablePrev:disabled"}}><a {{action prevPage}}>Prev</a></li>\
 					{{#each view.pages itemViewClass="view.pageButton" page="content"}}\
@@ -120,6 +120,8 @@ VG.Views.Pagination = Ember.View.extend({
 		{{/if}}'
 	),
 
+	numberOfPages: 10,
+
 	/**
 	 * Computed property that generates the page link numbers to be used in the
 	 * view. Limit to 10 pages at a time with the current page being in the center
@@ -127,6 +129,7 @@ VG.Views.Pagination = Ember.View.extend({
 	 * inspiration.  Here's an example of how it should look:
 	 *
 	 *              Prev 8 9 10 11 12 |13| 14 15 16 17 Next
+	 *              Prev 80 81 82 83 84 85 86 |87| 88 89 90 91 92 93 94 Next
 	 *
 	 * @return {Array}
 	 */
@@ -134,22 +137,26 @@ VG.Views.Pagination = Ember.View.extend({
 		var result = [],
 			totalPages = this.get('controller.totalPages'),
 			currentPage = this.get('controller.currentPage'),
-			length = (totalPages >= 10) ? 10 : totalPages,
+			length = (totalPages >= this.get('numberOfPages')) ? this.get('numberOfPages') : totalPages,
 			startPos;
+
+		// If only one page, don't show pagination
+		if (totalPages === 1)
+			return;
 
 		/*
 		 * Figure out the starting point.
 		 *
 		 * If current page is <= 6, then start from 1, else FFIO
 		 */
-		if (currentPage  <= 6 || totalPages <= 10) {
+		if (currentPage  <= Math.floor(this.get('numberOfPages') / 2) + 1 || totalPages <= this.get('numberOfPages')) {
 			startPos = 1;
 		} else {
 			// If in the last section of pages, use the last 10 pages
-			if (currentPage > (totalPages - 5)) {
-				startPos = totalPages - 9;
+			if (currentPage >= totalPages - (Math.ceil(this.get('numberOfPages') / 2)) - 1) {
+				startPos = totalPages - (this.get('numberOfPages') - 1);
 			} else {
-				startPos = currentPage - 5;
+				startPos = currentPage - (Math.ceil(this.get('numberOfPages') / 2) - 1);
 			}
 		}
 
