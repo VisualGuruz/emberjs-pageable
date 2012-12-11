@@ -18,13 +18,13 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
- 
-if ('undefined' === typeof VG) {
-  VG = {};
 
-  if ('undefined' !== typeof window) {
-    window.VG = VG;
-  }
+if ('undefined' === typeof VG) {
+	VG = {};
+
+	if ('undefined' !== typeof window) {
+		window.VG = VG;
+	}
 }
 
 
@@ -40,7 +40,7 @@ VG.Mixins = {};
  * @type {Ember.Mixin}
  */
 VG.Mixins.Pageable = Ember.Mixin.create({
-  currentPage: 1,
+	currentPage: 1,
 	perPage: 100,
 
 	/**
@@ -137,7 +137,7 @@ VG.Views.Pagination = Ember.View.extend({
 	 * @return {Boolean}
 	 */
 	disablePrev: function () {
-			return this.get('controller.currentPage') == 1;
+		return this.get('controller.currentPage') == 1;
 	}.property('controller.currentPage'),
 
 	/**
