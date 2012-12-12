@@ -14,6 +14,11 @@ ApplicationController: Ember.Controller.extend({
 });
 ```
 
+Then inside the template, you'll use the `{{each}}` helper like normal, and use 
+this view for the pagination:
+
+    {{view VG.Views.Pagination controllerBinding="path.to.ArrayController"}}
+
 If you to change the default items per page, just adjust the _perPage option:
 
 ```javascript
@@ -23,11 +28,15 @@ ApplicationController: Ember.Controller.extend({
 });
 ```
 
-Then inside the template, you'll use the `{{each}}` helper like normal, and use 
-this view for the pagination:
+If you want to change the number of pages listed in the pagination at a time,
+extend `VG.Views.Pagination` and pass in the `numberOfPages` option:
 
-    {{view VG.Views.Pagination controllerBinding="path.to.ArrayController"}}
-    
+```javascript
+App.Views.Pagination = VG.Views.Pagination.extend({
+  numberOfPages: 15
+});
+```
+
 Here's a (stripped down) real world example with a bit more context:
 
 ```html
@@ -69,4 +78,4 @@ Here's a (stripped down) real world example with a bit more context:
 ###Coming soon
 
 - Pushstate
-- Handling high volumes of pages
+- Sorting API
