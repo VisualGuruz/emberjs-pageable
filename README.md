@@ -14,6 +14,20 @@ ApplicationController: Ember.Controller.extend({
 });
 ```
 
+The only difference in this implementation of ArrayController is you will now
+assign the array of items to the `data` property:
+
+```javascript
+$.getJSON('lifecycle_test.json', function(data){
+  var items = [];
+  data.forEach(function(item){
+		items.pushObject(App.Models.Equipment.create(item));
+	});
+
+	router.get('applicationController.equipment').set('data', items);
+});
+```
+
 Then inside the template, you'll use the `{{each}}` helper like normal, and use 
 this view for the pagination:
 
