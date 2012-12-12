@@ -19,8 +19,8 @@ assign the array of items to the `data` property:
 
 ```javascript
 $.getJSON('lifecycle_test.json', function(data){
-  var items = [];
-  data.forEach(function(item){
+	var items = [];
+	data.forEach(function(item){
 		items.pushObject(App.Models.Equipment.create(item));
 	});
 
