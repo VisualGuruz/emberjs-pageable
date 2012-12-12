@@ -1,4 +1,4 @@
-#Ember Bootstrap Pageable
+#Ember Pageable for Bootstrap
 
 ####Pagination Mixin for Ember.js Using Twitter Bootstrap's Pagination
 
@@ -109,7 +109,12 @@ Here's the implementation from [the demo](http://visualguruz.com/ember-pageable-
 </script>
 ```
 
-###Coming soon
+### Requirements
+
+- Emberjs 1.0pre2 and dependencies
+- Bootstrap 2.2.0 and dependencies
+
+### Coming soon
 
 - Pushstate
 - Sorting API
