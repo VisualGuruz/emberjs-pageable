@@ -1,6 +1,6 @@
 #Ember Pageable for Bootstrap
 
-####Pagination Mixin for Ember.js Using Twitter Bootstrap's Pagination
+####Pagination Mixin for [Ember.js](http://emberjs.com) Using [Bootstrap's Pagination](http://twitter.github.com/bootstrap/components.html#pagination)
 
 Ember Bootstrap Pageable is a mixin for ArrayControllers to build a paginated 
 view that can be controlled with Bootstrap's pagination component. It's designed
