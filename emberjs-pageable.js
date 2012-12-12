@@ -152,10 +152,12 @@ VG.Views.Pagination = Ember.View.extend({
 		if (currentPage  <= Math.floor(this.get('numberOfPages') / 2) + 1 || totalPages <= this.get('numberOfPages')) {
 			startPos = 1;
 		} else {
-			// If in the last section of pages, use the last 10 pages
-			if (currentPage >= totalPages - (Math.ceil(this.get('numberOfPages') / 2)) - 1) {
-				startPos = totalPages - (this.get('numberOfPages') - 1);
+			// Check to see if in the last section of pages
+			if (currentPage >= totalPages - (Math.ceil(this.get('numberOfPages') / 2) - 1)) {
+				// Start pages so that the total number of pages is shown and the last page number is the last page
+				startPos = totalPages - ((this.get('numberOfPages') - 1));
 			} else {
+				// Start pages so that current page is in the center
 				startPos = currentPage - (Math.ceil(this.get('numberOfPages') / 2) - 1);
 			}
 		}
