@@ -16,7 +16,7 @@ ApplicationController: Ember.Controller.extend({
 });
 ```
 
-If you to change the default items per page, just adjust the _perPage option:
+If you to change the default items per page, just adjust the perPage option:
 
 ```javascript
 // Somewhere inside of your app
