@@ -19,6 +19,7 @@ App.PeopleController = Ember.Controller.extend({
 If you to change the default items per page, just adjust the perPage option:
 
 ```javascript
+// Declare the controller and instantiate the pageable ArrayController with 20 items per page
 App.PeopleController = Ember.Controller.extend({
 	people: Ember.ArrayController.createWithMixins(VG.Mixins.Pageable, {
 		perPage: 20
@@ -31,15 +32,19 @@ The only difference in this implementation of ArrayController is you will now
 assign the array of items to the `data` property. Easily done inside of setupControllers():
 
 ```javascript
+// Declare the route
 App.PeopleRoute = Ember.Route.extend({
 	setupControllers: function(controller) {
+		// Get the data to use and inject it into the controller
 		$.getJSON('data.json', function(data){
 			var items = [];
 
+			// Loop through each item and create a Person out of it
 			data.forEach(function(item){
 				items.pushObject(App.PersonModel.create(item));
 			});
 
+			// Set the items to the `data` property for use in the controller
 			controller.set('people.data', items);
 		});
 	}
@@ -51,12 +56,15 @@ App.PeopleRoute = Ember.Route.extend({
 Then inside the template, you'll use the `{{each}}` helper like normal, and use 
 this view for the pagination:
 
-    {{view VG.Views.Pagination controllerBinding="people" classNames="span12"}}
+```handlebars
+{{view VG.Views.Pagination controllerBinding="people" classNames="span12"}}
+```
 
 If you want to change the number of pages listed in the pagination at a time,
 extend `VG.Views.Pagination` and pass in the `numberOfPages` option:
 
 ```javascript
+// Declare the pagination view and set the number of pages to show to 15
 App.PaginationView = VG.Views.Pagination.extend({
 	numberOfPages: 15
 });
@@ -66,7 +74,7 @@ App.PaginationView = VG.Views.Pagination.extend({
 
 Here's the implementation from [the demo](http://visualguruz.com/ember-pageable-demo/):
 
-```html
+```handlebars
 <!-- Inside of a handlebars template -->
 <script type="text/x-handlebars" data-template-name="people">
 	<div class="row">
