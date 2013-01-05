@@ -74,7 +74,7 @@ App.PaginationView = VG.Views.Pagination.extend({
 
 Here's the implementation from [the demo](http://visualguruz.com/ember-pageable-demo/):
 
-```handlebars
+```html
 <!-- Inside of a handlebars template -->
 <script type="text/x-handlebars" data-template-name="people">
 	<div class="row">
