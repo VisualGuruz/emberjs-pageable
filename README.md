@@ -74,43 +74,41 @@ App.PaginationView = VG.Views.Pagination.extend({
 
 Here's the implementation from [the demo](http://visualguruz.com/ember-pageable-demo/):
 
-```html
+```handlebars
 <!-- Inside of a handlebars template -->
-<script type="text/x-handlebars" data-template-name="people">
-	<div class="row">
-		<div class="span12">
-			<div class="row">
-				<div class="span12">
-					<table class="table table-striped table-bordered table-condensed">
-						<thead>
+<div class="row">
+	<div class="span12">
+		<div class="row">
+			<div class="span12">
+				<table class="table table-striped table-bordered table-condensed">
+					<thead>
+						<tr>
+							<th>First Name</th>
+							<th>Last Name</th>
+							<th>Company Name</th>
+							<th>Location</th>
+							<th>E-mail</th>
+						</tr>
+					</thead>
+					<tbody>
+						{{#each people}}
 							<tr>
-								<th>First Name</th>
-								<th>Last Name</th>
-								<th>Company Name</th>
-								<th>Location</th>
-								<th>E-mail</th>
+								<td>{{FirstName}}</td>
+								<td>{{LastName}}</td>
+								<td>{{Company}}</td>
+								<td>{{location}}</td>
+								<td>{{Email}}</td>
 							</tr>
-						</thead>
-						<tbody>
-							{{#each people}}
-								<tr>
-									<td>{{FirstName}}</td>
-									<td>{{LastName}}</td>
-									<td>{{Company}}</td>
-									<td>{{location}}</td>
-									<td>{{Email}}</td>
-								</tr>
-							{{/each}}
-						</tbody>
-					</table>
-				</div>
-			</div>
-			<div class="row">
-				{{view App.PaginationView controllerBinding="people" classNames="span12"}}
+						{{/each}}
+					</tbody>
+				</table>
 			</div>
 		</div>
+		<div class="row">
+			{{view App.PaginationView controllerBinding="people" classNames="span12"}}
+		</div>
 	</div>
-</script>
+</div>
 ```
 
 ### Requirements
