@@ -110,11 +110,11 @@ VG.Views.Pagination = Ember.View.extend({
 		'{{#if view.pages}}\
 		<div class="pagination pull-right">\
 				<ul>\
-					<li {{bindAttr class="view.disablePrev:disabled"}}><a {{action prevPage}}>Prev</a></li>\
+					<li {{bindAttr class="view.disablePrev:disabled"}}><a {{action prevPage target="view"}}>Prev</a></li>\
 					{{#each view.pages itemViewClass="view.pageButton" page="content"}}\
-						<a {{action goToPage}}>{{this}}</a>\
+						<a {{action goToPage target="view"}}>{{this}}</a>\
 					{{/each}}\
-					<li {{bindAttr class="view.disableNext:disabled"}}><a {{action nextPage}}>Next</a></li>\
+					<li {{bindAttr class="view.disableNext:disabled"}}><a {{action nextPage target="view"}}>Next</a></li>\
 				</ul>\
 			</div>\
 		{{/if}}'
