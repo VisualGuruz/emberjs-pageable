@@ -118,8 +118,8 @@ Here's the implementation from [the demo](http://visualguruz.com/ember-pageable-
 
 ### Coming soon
 
+- Sorting API Documentation
 - Pushstate and Navigation (maybe)
-- Sorting API
 
 I'm still on the fence about adding navigation because in most usage cases for pagination, 
 the data isn't idempotent and may not be the same on next visit making bookmarking a bad experience.
