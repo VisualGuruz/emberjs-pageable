@@ -27,12 +27,77 @@ if ('undefined' === typeof VG) {
 	}
 }
 
+// Make sure the Helpers container exists
+if ('undefined' === typeof VG.Helpers)
+	VG.Helpers = {};
+
+// Make sure the Views container exists
+if ('undefined' === typeof VG.Views)
+	VG.Views = {};
+
+// Make sure the Mixins container exists
+if ('undefined' === typeof VG.Mixins)
+	VG.Mixins = {};
 
 /**
- * Container for VG Mixins
- * @type {Object}
+ * Normalizes values to be used in a sort for natural sort
+ * @param  {Mixed} a
+ * @param  {Mixed} b
+ * @return {Array}
  */
-VG.Mixins = {};
+VG.Helpers.normalizeSortValues = function (a, b) {
+	// Set unsupported types.  May need to be made into a whitelist instead
+	var failTypes = ['function', 'object', 'array', 'date', 'regexp'];
+
+	// Check if `b` can be normalized
+	if (jQuery.inArray(jQuery.type(a), failTypes) !== -1){
+		throw new Error('Cannot normalize input `a`! '+jQuery.type(a)+' was passed!');
+	}
+
+	// Check if `b` can be normalized
+	if (jQuery.inArray(jQuery.type(b), failTypes) !== -1){
+		throw new Error('Cannot normalize input `b`! '+jQuery.type(b)+' was passed!');
+	}
+
+	// Function that does the normalizing
+	var norm = function (input) {
+		// Some setup
+		var ret,
+			tests = {
+				// Regex to detect if is number
+				number: /^([0-9]+?)$/
+			};
+
+		// Figure out what the value is return the normalized version
+		switch(jQuery.type(input)) {
+			case 'string':
+				if (tests.number.test(jQuery.trim(input))) {
+					return parseInt(input, 10);
+				}
+				return jQuery.trim(input).toLowerCase();
+			case 'null':
+				return '';
+			case 'boolean':
+				return input ? '0' : '1';
+			default:
+				return input;
+		}
+	};
+
+	// Normalize variables
+	a = norm(a);
+	b = norm(b);
+
+	// If types differ, set them both to strings
+	if ((typeof a === 'string' && typeof b === 'number') || (typeof b === 'string' && typeof a === 'number')) {
+		a = String(a);
+		b = String(b);
+	}
+
+	// Return normalized values
+	return [a, b];
+};
+
 
 /**
  * Mixing to add to an array controller for use with pagination
@@ -40,8 +105,30 @@ VG.Mixins = {};
  * @type {Ember.Mixin}
  */
 VG.Mixins.Pageable = Ember.Mixin.create({
+	/**
+	 * Current page of the view
+	 * @type {Number}
+	 */
 	currentPage: 1,
+
+	/**
+	 * How many items to show per page
+	 * @type {Number}
+	 */
 	perPage: 100,
+
+	/**
+	 * The property the data is currently sorted by
+	 * @type {String}
+	 */
+	sortBy: null,
+
+	/**
+	 * Direction of the current sort, if any
+	 * @type {String}
+	 */
+	sortDirection: 'ascending',
+
 
 	/**
 	 * Used to store or retrieve the data
@@ -96,22 +183,73 @@ VG.Mixins.Pageable = Ember.Mixin.create({
 
 		// Set the current page to the previous page
 		this.set('currentPage', this.get('currentPage') - 1);
+	},
+
+	/**
+	 * Sorts the data by a property
+	 * @param  {String} property
+	 * @param  {String} direction
+	 * @return {Void}
+	 */
+	sortByProperty: function (property, direction) {
+		var data = this.get('data').slice();
+
+		// Set up sort direction
+		if (direction === undefined) {
+			if (this.get('sortBy') === property && this.get('sortDirection') === 'ascending')
+				direction = 'descending';
+			else
+				direction = 'ascending';
+		}
+
+		// Custom sort to sort alphanumerically
+		data.sort(function (a, b) {
+			// Normalize values to make sort natural
+			var normalizedValues = VG.Helpers.normalizeSortValues(a.get(property), b.get(property)),
+				va = normalizedValues[0],
+				vb = normalizedValues[1];
+
+			// Do the sorting
+			if (va == vb)
+				return 0;
+			else {
+				// Reverse if necessary
+				if (direction === 'ascending')
+					return va > vb ? 1 : -1;
+				else
+					return va < vb ? 1 : -1;
+			}
+		});
+
+		// Now that sort is complete, set the controller
+		this.set('sortBy', property);
+
+		// Assign sort direction
+		this.set('sortDirection', direction);
+
+		// Assign the data
+		this.set('data', data);
+
+		// Reset the current page to 1
+		this.set('currentPage', 1);
 	}
 });
-
-VG.Views = {};
 
 /**
  * The view class for the pagination.  Handles the navigation of pages using the pageable mixin
  * @type {Ember.View}
  */
 VG.Views.Pagination = Ember.View.extend({
-	template: Ember.Handlebars.compile(
+	/**
+	 * Default template used to render the page buttons
+	 * @type {[type]}
+	 */
+	defaultTemplate: Ember.Handlebars.compile(
 		'{{#if view.pages}}\
 		<div class="pagination pull-right">\
 				<ul>\
 					<li {{bindAttr class="view.disablePrev:disabled"}}><a {{action prevPage target="view"}}>Prev</a></li>\
-					{{#each view.pages itemViewClass="view.pageButton" page="content"}}\
+					{{#each view.pages itemViewClass="view.PageButton" page="content"}}\
 						<a {{action goToPage target="view"}}>{{this}}</a>\
 					{{/each}}\
 					<li {{bindAttr class="view.disableNext:disabled"}}><a {{action nextPage target="view"}}>Next</a></li>\
@@ -120,6 +258,10 @@ VG.Views.Pagination = Ember.View.extend({
 		{{/if}}'
 	),
 
+	/**
+	 * Number of page buttons to display at a time
+	 * @type {Number}
+	 */
 	numberOfPages: 10,
 
 	/**
@@ -207,7 +349,8 @@ VG.Views.Pagination = Ember.View.extend({
 	 * View class for the page buttons in the pagination
 	 * @type {Ember.View}
 	 */
-	pageButton: Ember.View.extend({
+	PageButton: Ember.View.extend({
+		// Bootstrap page buttons are li elements
 		tagName: 'li',
 
 		// Bind to is current to show the button as active
@@ -231,4 +374,99 @@ VG.Views.Pagination = Ember.View.extend({
 			return this.get('content') == this.get('parentView.controller.currentPage') ? 'active' : '';
 		}.property('parentView.controller.currentPage')
 	})
+});
+
+/**
+ * Table Header view class to create th tags that will sort your table when
+ * clicked. Bootstrap does not supply styling for sorting, so you'll need to
+ * create your own. By default, Pageable uses the following styles:
+ *
+ *     `clickable`: Marks the header as clickable, allowing for things like
+ * setting the curser to pointer, letting the user know the element is
+ * clickable.
+ *     `active`: Will be set if the header is the current active sort
+ *     `ascending`: Will be set if the header is active and the current sort is
+ * ascending.
+ *     `descending`: Will be set if the header is active and the current sort
+ * is descending.
+ *
+ * @type {Object}
+ */
+VG.Views.TableHeader =  Ember.View.extend({
+	/**
+	 * Default template used to render the header
+	 * @type {Function}
+	 */
+	defaultTemplate: Ember.Handlebars.compile('{{view.text}}'),
+
+	/**
+	 * It's a header, so render it as a th
+	 * @type {String}
+	 */
+	tagName: 'th',
+
+	/**
+	 * Mark the view as clickable
+	 * @type {Array}
+	 */
+	classNames: ['clickable'],
+
+	/**
+	 * Define the bound classes.  Used to say if the header is the active sort
+	 * and what direction the sort is.
+	 * @type {Array}
+	 */
+	classNameBindings: ['isCurrent:active', 'isAscending:ascending', 'isDescending:descending'],
+	
+	/**
+	 * Name of the property the header is bound to
+	 * @type {String}
+	 */
+	propertyName: '',
+
+	/**
+	 * Text to be rendered to the view
+	 * @type {String}
+	 */
+	text: '',
+
+	/**
+	 * Click even used to instantiate a new sort
+	 *
+	 * @param  {Object} event
+	 * @return {Void}
+	 */
+	click: function (event) {
+		this.get('controller').sortByProperty(this.get('propertyName'));
+	},
+
+	/**
+	 * Computed property for checking to see if the header is the current sort
+	 * or not.
+	 *
+	 * @return {Boolean}
+	 */
+	isCurrent: function () {
+		return this.get('controller.sortBy') === this.get('propertyName');
+	}.property('controller.sortBy'),
+
+	/**
+	 * Computed property for checking to see if the header is sorted ascending
+	 * when it is the current sort.
+	 *
+	 * @return {Boolean} [description]
+	 */
+	isAscending: function () {
+		return this.get('isCurrent') && this.get('controller.sortDirection') === 'ascending';
+	}.property('controller.sortDirection', 'isCurrent'),
+
+	/**
+	 * Computed property for checking to see if the header is sorted descending
+	 * when it is the current sort.
+	 *
+	 * @return {Boolean} [description]
+	 */
+	isDescending: function () {
+		return this.get('isCurrent') && this.get('controller.sortDirection') === 'descending';
+	}.property('controller.sortDirection', 'isCurrent')
 });

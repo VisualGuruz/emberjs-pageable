@@ -1,0 +1,7 @@
+.clickable {
+	cursor: pointer;
+}
+
+.table .active {
+	text-decoration: underline;
+}

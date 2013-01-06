@@ -32,7 +32,7 @@ App.PeopleRoute = Ember.Route.extend({
 
 // Declare the person model and add a property to format the location
 App.PersonModel = Ember.Object.extend({
-	location: function () {
+	Location: function () {
 		return this.get('City')+', '+this.get('State');
 	}.property('City', 'State')
 });
@@ -40,6 +40,10 @@ App.PersonModel = Ember.Object.extend({
 // Declare the pagination view and set the number of pages to show to 15
 App.PaginationView = VG.Views.Pagination.extend({
 	numberOfPages: 15
+});
+
+App.TableHeaderView = VG.Views.TableHeader.extend({
+	template: Ember.Handlebars.compile('{{#if view.isCurrent}}<i {{bindAttr class="view.isAscending:icon-sort-up view.isDescending:icon-sort-down"}}></i>{{/if}}{{view.text}}')
 });
 
 // Declare the controller and instantiate the pageable ArrayController with 20 items per page
