@@ -144,10 +144,10 @@ VG.Mixins.Pageable = Ember.Mixin.create({
 	content: function () {
 		// Get the starting and ending point of the array to slice
 		var start = (this.get('currentPage') - 1) * this.get('perPage'),
-			end = start + this.get('perPage') - 1;
+			end = start + this.get('perPage');
 
 		return this.get('data').slice(start, end);
-	}.property('currentPage', 'perPage', 'data'),
+	}.property('currentPage', 'perPage', 'data.@each'),
 
 	/**
 	 * Returns the total number of pages based on the length of the array and
@@ -156,8 +156,8 @@ VG.Mixins.Pageable = Ember.Mixin.create({
 	 * @return int Total Number of Pages
 	 */
 	totalPages: function () {
-		return Math.ceil(this.get('data').length / this.get('perPage'));
-	}.property('data', 'perPage'),
+		return Math.ceil(this.get('data.length') / this.get('perPage'));
+	}.property('data.@each', 'perPage'),
 
 	/**
 	 * Navigates the content to the next page
