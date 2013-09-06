@@ -129,7 +129,6 @@ VG.Mixins.Pageable = Ember.Mixin.create({
 	 */
 	sortDirection: 'ascending',
 
-
 	/**
 	 * Used to store or retrieve the data
 	 * @type {Array}
@@ -159,79 +158,81 @@ VG.Mixins.Pageable = Ember.Mixin.create({
 		return Math.ceil(this.get('data.length') / this.get('perPage'));
 	}.property('data.@each', 'perPage'),
 
-	/**
-	 * Navigates the content to the next page
-	 * @return {void}
-	 */
-	nextPage: function () {
-		// Make sure you can go forward first
-		if (this.get('currentPage') === this.get('totalPages'))
-			return null; // NOOP
+	actions: {
+		/**
+		 * Navigates the content to the next page
+		 * @return {void}
+		 */
+		nextPage: function () {
+			// Make sure you can go forward first
+			if (this.get('currentPage') === this.get('totalPages'))
+				return null; // NOOP
 
-		// Set the current page to the next page
-		this.set('currentPage', this.get('currentPage') + 1);
-	},
+			// Set the current page to the next page
+			this.set('currentPage', this.get('currentPage') + 1);
+		},
 
-	/**
-	 * Navigates the content to the previous page
-	 * @return {[type]} [description]
-	 */
-	previousPage: function () {
-		// Make sure you can go backwards first
-		if (this.get('currentPage') === 1)
-			return null; // NOOP
+		/**
+		 * Navigates the content to the previous page
+		 * @return {[type]} [description]
+		 */
+		previousPage: function () {
+			// Make sure you can go backwards first
+			if (this.get('currentPage') === 1)
+				return null; // NOOP
 
-		// Set the current page to the previous page
-		this.set('currentPage', this.get('currentPage') - 1);
-	},
+			// Set the current page to the previous page
+			this.set('currentPage', this.get('currentPage') - 1);
+		},
 
-	/**
-	 * Sorts the data by a property
-	 * @param  {String} property
-	 * @param  {String} direction
-	 * @return {Void}
-	 */
-	sortByProperty: function (property, direction) {
-		var data = this.get('data').slice();
+		/**
+		 * Sorts the data by a property
+		 * @param  {String} property
+		 * @param  {String} direction
+		 * @return {Void}
+		 */
+		sortByProperty: function (property, direction) {
+			var data = this.get('data').slice();
 
-		// Set up sort direction
-		if (direction === undefined) {
-			if (this.get('sortBy') === property && this.get('sortDirection') === 'ascending')
-				direction = 'descending';
-			else
-				direction = 'ascending';
-		}
-
-		// Custom sort to sort alphanumerically
-		data.sort(function (a, b) {
-			// Normalize values to make sort natural
-			var normalizedValues = VG.Helpers.normalizeSortValues(a.get(property), b.get(property)),
-				va = normalizedValues[0],
-				vb = normalizedValues[1];
-
-			// Do the sorting
-			if (va == vb)
-				return 0;
-			else {
-				// Reverse if necessary
-				if (direction === 'ascending')
-					return va > vb ? 1 : -1;
+			// Set up sort direction
+			if (direction === undefined) {
+				if (this.get('sortBy') === property && this.get('sortDirection') === 'ascending')
+					direction = 'descending';
 				else
-					return va < vb ? 1 : -1;
+					direction = 'ascending';
 			}
-		});
 
-		// Now that sort is complete, set the controller
-		this.set('sortBy', property);
+			// Custom sort to sort alphanumerically
+			data.sort(function (a, b) {
+				// Normalize values to make sort natural
+				var normalizedValues = VG.Helpers.normalizeSortValues(a.get(property), b.get(property)),
+					va = normalizedValues[0],
+					vb = normalizedValues[1];
 
-		// Assign sort direction
-		this.set('sortDirection', direction);
+				// Do the sorting
+				if (va == vb)
+					return 0;
+				else {
+					// Reverse if necessary
+					if (direction === 'ascending')
+						return va > vb ? 1 : -1;
+					else
+						return va < vb ? 1 : -1;
+				}
+			});
 
-		// Assign the data
-		this.set('data', data);
+			// Now that sort is complete, set the controller
+			this.set('sortBy', property);
 
-		// Reset the current page to 1
-		this.set('currentPage', 1);
+			// Assign sort direction
+			this.set('sortDirection', direction);
+
+			// Assign the data
+			this.set('data', data);
+
+			// Reset the current page to 1
+			this.set('currentPage', 1);
+		}
 	}
 });
 
@@ -327,22 +328,24 @@ VG.Views.Pagination = Ember.View.extend({
 		return this.get('controller.currentPage') == this.get('controller.totalPages');
 	}.property('controller.currentPage', 'controller.totalPages'),
 
-	/**
-	 * Action that fires the previousPage function on the pageable ArrayController
-	 * @param  {event} event
-	 * @return {void}
-	 */
-	prevPage: function () {
-		this.get('controller').previousPage();
-	},
+	actions: {
+		/**
+		 * Action that fires the previousPage function on the pageable ArrayController
+		 * @param  {event} event
+		 * @return {void}
+		 */
+		prevPage: function () {
+			this.get('controller').send('previousPage');
+		},
 
-	/**
-	 * Action that fires the nextPage function on the pageable ArrayController
-	 * @param  {event} event
-	 * @return {void}
-	 */
-	nextPage: function () {
-		this.get('controller').nextPage();
+		/**
+		 * Action that fires the nextPage function on the pageable ArrayController
+		 * @param  {event} event
+		 * @return {void}
+		 */
+		nextPage: function () {
+			this.get('controller').send('nextPage');
+		}
 	},
 
 	/**
@@ -357,23 +360,25 @@ VG.Views.Pagination = Ember.View.extend({
 		classNameBindings: ['isCurrent'],
 
 		/**
-		 * Action helper to set the currentPage on the pageable ArrayController
-		 * @param  {event} event
-		 * @return {void}
-		 */
-		goToPage: function () {
-			// Change the page
-			this.set('parentView.controller.currentPage', this.get('content'));
-		},
-
-		/**
 		 * Computed property to see if the button is active
 		 * @return {Boolean}
 		 */
 		isCurrent: function () {
 			return this.get('content') == this.get('parentView.controller.currentPage') ? 'active' : '';
-		}.property('parentView.controller.currentPage')
-	})
+		}.property('parentView.controller.currentPage'),
+
+        actions: {
+            /**
+             * Action helper to set the currentPage on the pageable ArrayController
+             * @param  {event} event
+             * @return {void}
+             */
+            goToPage: function () {
+                // Change the page
+                this.set('parentView.controller.currentPage', this.get('content'));
+            }
+        }
+    })
 });
 
 /**
@@ -417,7 +422,7 @@ VG.Views.TableHeader =  Ember.View.extend({
 	 * @type {Array}
 	 */
 	classNameBindings: ['isCurrent:active', 'isAscending:ascending', 'isDescending:descending'],
-	
+
 	/**
 	 * Name of the property the header is bound to
 	 * @type {String}
