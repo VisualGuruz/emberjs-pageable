@@ -1,3 +1,7 @@
+# WARNING: Project Extremely Out of Date!
+
+This project was originally written around the Ember 1.0 release candidates with Bootstrap 2.2 and probably will not work with the latest version of Ember.
+
 #Ember Pageable for Bootstrap
 
 ####Pagination Mixin for [Ember.js](http://emberjs.com) Using [Bootstrap's Pagination](http://twitter.github.com/bootstrap/components.html#pagination)
